@@ -1,0 +1,45 @@
+---
+  # Install MariaDB server
+  - name: Install MariaDB Server
+    ansible.builtin.yum:
+      name: mariadb105-server
+      state: present
+    become: yes
+
+  # Ensure MariaDB is running and enabled on boot
+  - name: Start and enable MariaDB
+    ansible.builtin.service:
+      name: mariadb
+      state: started
+      enabled: yes
+    become: yes
+
+  # Secure the MariaDB installation (manually)
+  - name: Set root password
+    ansible.builtin.shell:
+      cmd: mysqladmin -u root password 'your_strong_root_password'
+    ignore_errors: yes
+    become: yes
+
+  - name: Remove anonymous users
+    ansible.builtin.command:
+      cmd: "mysql -u root -p'your_strong_root_password' -e \"DELETE FROM mysql.user WHERE User=''; FLUSH PRIVILEGES;\""
+    become: yes
+
+  # Flush privileges
+  - name: Flush privileges
+    ansible.builtin.shell:
+      cmd: mysql -u root -p'your_strong_root_password' -e 'FLUSH PRIVILEGES;'
+    become: yes
+
+  # Create a new database named 'myapp'
+  - name: Create a database named 'myapp'
+    ansible.builtin.shell:
+      cmd: "mysql -u root -p'your_strong_root_password' -e \"CREATE DATABASE IF NOT EXISTS myapp;\""
+    become: yes
+
+  # Add a user for external connections
+  - name: Add a MariaDB user for external connections
+    ansible.builtin.shell:
+      cmd: "mysql -u root -p'your_strong_root_password' -e \"CREATE USER 'myappuser'@'%' IDENTIFIED BY 'user_strong_password'; GRANT ALL PRIVILEGES ON myapp.* TO 'myappuser'@'%'; FLUSH PRIVILEGES;\""
+    become: yes

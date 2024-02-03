@@ -1,0 +1,3 @@
+#назва мого серверу і дані для під'єднання. Може бути більше хостів, назва використовується в playbooks
+[target]
+target_node_private_ip ansible_ssh_user=ec2-user ansible_ssh_private_key_file=/path/to/target-node-key.pem

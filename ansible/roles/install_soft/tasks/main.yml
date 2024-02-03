@@ -1,0 +1,8 @@
+---
+  - name: Install utility packages
+    ansible.builtin.yum:
+      name:
+        - mc
+        - screen
+        - tree
+      state: present

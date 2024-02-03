@@ -1,0 +1,21 @@
+---
+    # Install the Nginx web server
+    - name: Install Nginx
+      ansible.builtin.yum:
+        name: nginx
+        state: present
+
+    # Copy the Nginx configuration template to the server
+    # Note: we need to create the 'nginx.conf.j2' Jinja2 template file in the 'templates' directory of this role and the headers, the structure shown later in the file
+    - name: Copy Nginx configuration template
+      ansible.builtin.template:
+        src: "templates/nginx.conf.j2"
+        dest: "/etc/nginx/nginx.conf"
+      notify: restart nginx
+
+    # Ensure the Nginx service is running and enabled to start on boot
+    - name: Ensure Nginx is running and enabled
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes

@@ -1,0 +1,7 @@
+---
+- name: Setup Web Server and Install Software Packages
+  hosts: target
+  become: yes
+  roles:
+    - install_soft
+    - web_server
