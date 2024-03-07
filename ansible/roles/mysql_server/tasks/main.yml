@@ -12,34 +12,51 @@
       name: mariadb
       state: started
       enabled: yes
-    become: yes
-
-  # Secure the MariaDB installation (manually)
-  - name: Set root password
-    ansible.builtin.shell:
-      cmd: mysqladmin -u root password 'your_strong_root_password'
+  
+  - name: Ensure root password is set
+    mysql_user:
+      login_user: root
+      login_password: ""
+      user: root
+      password: "{{ vault_mariadb_root_password }}"
+      check_implicit_admin: yes
     ignore_errors: yes
-    become: yes
-
+  
   - name: Remove anonymous users
-    ansible.builtin.command:
-      cmd: "mysql -u root -p'your_strong_root_password' -e \"DELETE FROM mysql.user WHERE User=''; FLUSH PRIVILEGES;\""
-    become: yes
-
-  # Flush privileges
+    mysql_user:
+      login_user: root
+      login_password: "{{ vault_mariadb_root_password }}"
+      user: ''
+      state: absent
+  
+  - name: Remove test database
+    mysql_db:
+      login_user: root
+      login_password: "{{ vault_mariadb_root_password }}"
+      db: test
+      state: absent
+  
   - name: Flush privileges
-    ansible.builtin.shell:
-      cmd: mysql -u root -p'your_strong_root_password' -e 'FLUSH PRIVILEGES;'
-    become: yes
-
-  # Create a new database named 'myapp'
-  - name: Create a database named 'myapp'
-    ansible.builtin.shell:
-      cmd: "mysql -u root -p'your_strong_root_password' -e \"CREATE DATABASE IF NOT EXISTS myapp;\""
-    become: yes
-
-  # Add a user for external connections
+    mysql_user:
+      login_user: root
+      login_password: "{{ vault_mariadb_root_password }}"
+      user: root
+      append_privs: yes
+      priv: '*.*:RELOAD'
+  
+  - name: Create a database named '{{ myapp_db }}'
+    mysql_db:
+      login_user: root
+      login_password: "{{ vault_mariadb_root_password }}"
+      name: "{{ myapp_db }}"
+      state: present
+  
   - name: Add a MariaDB user for external connections
-    ansible.builtin.shell:
-      cmd: "mysql -u root -p'your_strong_root_password' -e \"CREATE USER 'myappuser'@'%' IDENTIFIED BY 'user_strong_password'; GRANT ALL PRIVILEGES ON myapp.* TO 'myappuser'@'%'; FLUSH PRIVILEGES;\""
-    become: yes
+    mysql_user:
+      login_user: root
+      login_password: "{{ vault_mariadb_root_password }}"
+      name: "{{ myapp_db_user }}"
+      password: "{{ vault_myapp_db_password }}"
+      priv: "{{ myapp_db }}.*:ALL"
+      host: '%'
+      state: present
