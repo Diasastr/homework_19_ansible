@@ -5,7 +5,24 @@
 
 Огляд
 -----
-Для початку встановили ансібл на control-node, створили файл ansible/hosts і сконфігурували доступ до target-node використовуючи приватну адресу і path to pom.file
+Для початку встановили ансібл на control-node, створили файл ansible/hosts і сконфігурували доступ до target-node використовуючи приватну адресу і path to pom.file. Додатково створили файл vault_db.yml (вас спитаюсь вигадати пароль до файлу, запам'ятайте його!):
+```bash
+ansible-vault create vault_db.yml
+```
+Потім додали потрібні паролі, нам треба як мінімум ці змінні:
+````yml
+vault_mariadb_root_password: mySecureRootPassword123!
+vault_myapp_db_password: anotherSecurePassword456!
+````
+Якщо треба змінити щось:
+```bash
+ansible-vault edit vault_db.yml
+```
+Тепер, коли ранимо playbook database_setup.yml, нам треба вказати додатковий флаг і ввести пароль від файлу з паролями :)
+```bash
+ansible-playbook your_playbook.yml --ask-vault-pass
+```
+
 
 Налаштування включає наступні компоненти:
 
