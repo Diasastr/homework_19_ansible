@@ -1,0 +1,2 @@
+vault_mariadb_root_password: mySecureRootPassword123!
+vault_myapp_db_password: anotherSecurePassword456!
