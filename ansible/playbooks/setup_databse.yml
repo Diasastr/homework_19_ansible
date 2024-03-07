@@ -2,5 +2,7 @@
 - name: Setup MySQL Server
   hosts: target
   become: yes
+  vars_files:
+    - vault_db_vars.yml  # Include the vault file containing encrypted variables
   roles:
     - mysql_server
